@@ -20,14 +20,14 @@ func TestCertificateGeneration(t *testing.T) {
 
 	rootCert, err := gen.GenerateCertificate(config, nil, pKey)
 	if err != nil {
-		t.Errorf("Wow: %v", err)
+		t.Errorf("certificate generation failed: %v", err)
 	}
 	cert, err := x509.ParseCertificate(rootCert)
 	if err != nil {
-		t.Errorf("Certificate is invalid: %v", err)
+		t.Errorf("certificate is invalid: %v", err)
 	}
 
 	if cert.Subject.CommonName != "ROOT" {
-		t.Errorf("Certificate has an incorrect CN")
+		t.Errorf("certificate has an incorrect CN: %s", cert.Subject.CommonName)
 	}
 }
