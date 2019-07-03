@@ -16,9 +16,12 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/pem"
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/jr0d/dcoscertstrap/pkg/gen"
 )
 
 // initCmd represents the init command
@@ -31,9 +34,7 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
-	},
+	Run: generateCertificate,
 }
 
 func init() {
@@ -48,4 +49,23 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func generateCertificate(cmd *cobra.Command, args []string) {
+	pKey, _ := gen.GenerateRSAPrivateKey()
+	config := gen.MakeCertificateConfig(
+		"ROOT",
+		"US",
+		"TX",
+		"San Antonio",
+		"Mesosphere Inc.",
+		[]string{"localhost", "127.0.0.1"},
+		true)
+
+	rootCert, err := gen.GenerateCertificate(config, nil, pKey)
+	if err != nil {
+		log.Fatalf("Wow: %v", err)
+	}
+	encoded := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: rootCert})
+	fmt.Printf("%s\n", string(encoded))
 }
