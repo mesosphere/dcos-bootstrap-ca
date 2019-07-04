@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/spf13/cobra"
 	"github.com/jr0d/dcoscertstrap/pkg/gen"
+	"github.com/spf13/cobra"
 )
 
 // initCmd represents the init command

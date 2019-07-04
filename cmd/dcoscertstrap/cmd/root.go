@@ -16,9 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-  "fmt"
-  "github.com/spf13/cobra"
-  "os"
+	"fmt"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 const VERSION = "0.1"
@@ -26,24 +26,24 @@ const versionFmt = "v" + VERSION
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-  Use:   "dcoscertstrap",
-  Short: "Simple program used to bootstrap TLS artifacts for " +
-    "secure inter-cluster communications",
-  Long: `This program is part of DC/OS and not intended for use
+	Use: "dcoscertstrap",
+	Short: "Simple program used to bootstrap TLS artifacts for " +
+		"secure inter-cluster communications",
+	Long: `This program is part of DC/OS and not intended for use
 outside of this context`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-  // enable --version flag
-  rootCmd.SetVersionTemplate(fmt.Sprintln(versionFmt))
-  rootCmd.Version = VERSION
+	// enable --version flag
+	rootCmd.SetVersionTemplate(fmt.Sprintln(versionFmt))
+	rootCmd.Version = VERSION
 
-  if err := rootCmd.Execute(); err != nil {
-    fmt.Println(err)
-    os.Exit(1)
-  }
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func init() {

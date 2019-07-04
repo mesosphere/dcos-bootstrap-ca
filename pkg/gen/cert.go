@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-var validFor = time.Hour*24*365*100
+var validFor = time.Hour * 24 * 365 * 100
 
 type basicCertificateConfig struct {
 	name  *pkix.Name
@@ -25,10 +25,10 @@ func MakeCertificateConfig(name, country, state, locality, organization string,
 	hosts []string, ca bool) *basicCertificateConfig {
 
 	dn := pkix.Name{
-		CommonName: name,
-		Country: []string{country},
-		Province: []string{state},
-		Locality: []string{locality},
+		CommonName:   name,
+		Country:      []string{country},
+		Province:     []string{state},
+		Locality:     []string{locality},
 		Organization: []string{organization},
 	}
 	return &basicCertificateConfig{
@@ -72,7 +72,6 @@ func GenerateCertificate(
 			template.DNSNames = append(template.DNSNames, h)
 		}
 	}
-
 
 	if template.IsCA {
 		template.KeyUsage |= x509.KeyUsageCertSign

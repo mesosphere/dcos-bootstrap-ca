@@ -24,7 +24,7 @@ func writePem(filePath string, der []byte, blockType string, private bool) error
 	if err != nil {
 		return nil
 	}
-	return  pem.Encode(out, &pem.Block{Type: blockType, Bytes: der})
+	return pem.Encode(out, &pem.Block{Type: blockType, Bytes: der})
 }
 
 // Writes a PrivateKey PEM with restrictive permissions
