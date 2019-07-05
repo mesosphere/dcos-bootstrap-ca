@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"io"
 	"log"
 	"os"
@@ -51,6 +52,34 @@ func WritePrivateKey(filePath string, key *rsa.PrivateKey) error {
 // Writes a X509 certificate
 func WriteCertificate(filePath string, certificate []byte) error {
 	return writePem(filePath, certificate, "CERTIFICATE", false)
+}
+
+func readPEM(filePath string) (*pem.Block, error) {
+	data, err := afero.ReadFile(AppFs, filePath)
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(data)
+	return block, nil
+}
+
+func ReadCertificatePEM(filePath string) ([]byte, error) {
+	block, err := readPEM(filePath)
+	if err != nil {
+		return nil, err
+	}
+	return block.Bytes, nil
+}
+
+func ReadPrivateKey(filePath string) (*rsa.PrivateKey, error) {
+	block, err := readPEM(filePath)
+	if err != nil {
+		return nil, err
+	}
+	if block.Type != "RSA PRIVATE KEY" {
+		return nil, errors.New("key is invalid")
+	}
+	return x509.ParsePKCS1PrivateKey(block.Bytes)
 }
 
 // Creates the storage directory, if it does not already exist. This

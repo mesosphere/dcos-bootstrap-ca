@@ -22,7 +22,9 @@ func TestCertificateGeneration(t *testing.T) {
 	if err != nil {
 		t.Errorf("certificate generation failed: %v", err)
 	}
+
 	cert, err := x509.ParseCertificate(rootCert)
+
 	if err != nil {
 		t.Errorf("certificate is invalid: %v", err)
 	}
