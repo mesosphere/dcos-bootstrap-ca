@@ -1,4 +1,4 @@
-package tests
+package gen
 
 import (
 	"crypto/x509"
