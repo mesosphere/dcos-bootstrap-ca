@@ -22,8 +22,8 @@ import (
 	"os"
 )
 
-const VERSION = "0.1"
-const versionFmt = "v" + VERSION
+const version = "0.1"
+const versionFmt = "v" + version
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -39,7 +39,7 @@ outside of this context`,
 func Execute() {
 	// enable --version flag
 	rootCmd.SetVersionTemplate(fmt.Sprintln(versionFmt))
-	rootCmd.Version = VERSION
+	rootCmd.Version = version
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

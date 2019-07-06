@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -17,7 +18,7 @@ import (
 
 var storagePath string
 
-// AppFs: File system abstraction can be overridden for testing
+// AppFs: OsFS is the default file system abstraction.
 var AppFs = afero.NewOsFs()
 
 func Close(c io.Closer) {
@@ -39,17 +40,23 @@ func writePem(filePath string, der []byte, blockType string, private bool) error
 	if err != nil {
 		return err
 	}
-	defer Close(out)
+
+	// defer close until after return, also check error
+	defer func() {
+		if err := out.Close(); err != nil {
+			log.Fatalf("error closing file %s: %v", filePath, err)
+		}
+	}()
 	return pem.Encode(out, &pem.Block{Type: blockType, Bytes: der})
 }
 
-// Writes a PrivateKey PEM with restrictive permissions
+// WritePrivateKey output key to filePath in PEM format
 func WritePrivateKey(filePath string, key *rsa.PrivateKey) error {
 	return writePem(
 		filePath, x509.MarshalPKCS1PrivateKey(key), "RSA PRIVATE KEY", true)
 }
 
-// Writes a X509 certificate
+// WriteCertificate outputs a certificate to filePath in PEM format
 func WriteCertificate(filePath string, certificate []byte) error {
 	return writePem(filePath, certificate, "CERTIFICATE", false)
 }
@@ -60,9 +67,13 @@ func readPEM(filePath string) (*pem.Block, error) {
 		return nil, err
 	}
 	block, _ := pem.Decode(data)
+	if block == nil {
+		return nil, errors.New(fmt.Sprintf("file not in PEM format: %s", filePath))
+	}
 	return block, nil
 }
 
+// ReadCertificatePEM reads a PEM formatted file in
 func ReadCertificatePEM(filePath string) ([]byte, error) {
 	block, err := readPEM(filePath)
 	if err != nil {
@@ -71,6 +82,7 @@ func ReadCertificatePEM(filePath string) ([]byte, error) {
 	return block.Bytes, nil
 }
 
+// ReadPrivateKey parses an RSA private key in PEM format and returns the result.
 func ReadPrivateKey(filePath string) (*rsa.PrivateKey, error) {
 	block, err := readPEM(filePath)
 	if err != nil {
@@ -82,14 +94,14 @@ func ReadPrivateKey(filePath string) (*rsa.PrivateKey, error) {
 	return x509.ParsePKCS1PrivateKey(block.Bytes)
 }
 
-// Creates the storage directory, if it does not already exist. This
+// InitStorage creates the storage directory, if dirPath does not already exist. This
 // function also sets the storagePath global
 func InitStorage(dirPath string) error {
 	storagePath = dirPath
 	return AppFs.MkdirAll(dirPath, 0700)
 }
 
-// Appends filePath to storagePath
+// StorePath appends filePath to storagePath
 func StorePath(filePath string) string {
 	return path.Join(storagePath, filePath)
 }

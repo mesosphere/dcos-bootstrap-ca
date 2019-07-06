@@ -15,14 +15,17 @@ import (
 
 var validFor = time.Hour * 24 * 365 * 100
 
-type basicCertificateConfig struct {
-	name  *pkix.Name
-	isCA  bool
-	hosts []string
+// BasicCertificateConfig DI for certificate generation
+type BasicCertificateConfig struct {
+	name  *pkix.Name  // Subject data for x509 certificates
+	isCA  bool  // true if the certificate can sign other certificates
+	hosts []string  // A list of DNS names and ip addresses
 }
 
+// MakeCertificateConfig packs a pkix.Name struct and generates a certificate configuration
+// used by the GenerateCertificate function
 func MakeCertificateConfig(name, country, state, locality, organization string,
-	hosts []string, ca bool) *basicCertificateConfig {
+	hosts []string, ca bool) BasicCertificateConfig {
 
 	dn := pkix.Name{
 		CommonName:   name,
@@ -31,15 +34,17 @@ func MakeCertificateConfig(name, country, state, locality, organization string,
 		Locality:     []string{locality},
 		Organization: []string{organization},
 	}
-	return &basicCertificateConfig{
+	return BasicCertificateConfig{
 		name:  &dn,
 		isCA:  ca,
 		hosts: hosts,
 	}
 
 }
+
+// GenerateCertificate simplifies certificate generation. Certificates are output as a byte slice
 func GenerateCertificate(
-	config *basicCertificateConfig, issuer *x509.Certificate, key *rsa.PrivateKey) ([]byte, error) {
+	config BasicCertificateConfig, issuer *x509.Certificate, key *rsa.PrivateKey) ([]byte, error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 
