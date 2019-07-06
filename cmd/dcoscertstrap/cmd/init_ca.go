@@ -73,17 +73,6 @@ func initializeCA(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddCommand(initCACmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initCACmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCACmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 	initCACmd.Flags().StringP("common-name", "n", "ROOT", "Root certificate common name")
 	initCACmd.Flags().StringP("country", "c", "", "Country name")
 	initCACmd.Flags().StringP("state", "s", "", "State or Provence")
