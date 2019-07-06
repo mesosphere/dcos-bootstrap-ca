@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
@@ -47,4 +48,22 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().StringP(
+		"output-dir", "d", ".pki/", "Path to store program files")
+}
+
+func getString(cmd *cobra.Command, s string) string {
+	v, err := cmd.Flags().GetString(s)
+	if err != nil {
+		log.Fatalf("%v\n", err)
+	}
+	return v
+}
+
+func getSlice(cmd *cobra.Command, s string) []string {
+	v, err := cmd.Flags().GetStringSlice(s)
+	if err != nil {
+		log.Fatalf("%v\n", err)
+	}
+	return v
 }
