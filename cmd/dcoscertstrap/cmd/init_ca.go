@@ -13,9 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"github.com/jr0d/dcoscertstrap/pkg/gen"
 	"github.com/spf13/cobra"
 	"log"
@@ -42,7 +45,7 @@ func initializeCA(cmd *cobra.Command, args []string) error {
 	}
 
 	log.Printf("Generating private key\n")
-	pKey, err := gen.GenerateRSAPrivateKey()
+	pKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return err
 	}

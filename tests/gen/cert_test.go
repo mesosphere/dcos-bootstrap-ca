@@ -1,6 +1,8 @@
 package gen
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"testing"
 )
@@ -8,7 +10,7 @@ import (
 import "github.com/jr0d/dcoscertstrap/pkg/gen"
 
 func TestCertificateGeneration(t *testing.T) {
-	pKey, _ := gen.GenerateRSAPrivateKey()
+	pKey, _ := rsa.GenerateKey(rand.Reader, 2048)
 	config := gen.MakeCertificateConfig(
 		"ROOT",
 		"US",

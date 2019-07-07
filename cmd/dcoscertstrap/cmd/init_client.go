@@ -13,13 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 package cmd
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"github.com/jr0d/dcoscertstrap/pkg/gen"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -35,7 +37,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		pKey, _ := gen.GenerateRSAPrivateKey()
+		pKey, _ := rsa.GenerateKey(rand.Reader, 2048)
 		marshalKey := x509.MarshalPKCS1PrivateKey(pKey)
 		_ = pem.Encode(os.Stdout, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: marshalKey})
 		fmt.Println("")

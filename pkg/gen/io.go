@@ -8,7 +8,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path"
@@ -18,14 +17,8 @@ import (
 
 var storagePath string
 
-// AppFs: OsFS is the default file system abstraction.
+// AppFs OsFS is the default file system abstraction.
 var AppFs = afero.NewOsFs()
-
-func Close(c io.Closer) {
-	if e := c.Close(); e != nil {
-		log.Fatalf("error closing %v: %v", c, e)
-	}
-}
 
 // DRY: Used to create PEM files of various types
 func writePem(filePath string, der []byte, blockType string, private bool) error {
@@ -68,7 +61,7 @@ func readPEM(filePath string) (*pem.Block, error) {
 	}
 	block, _ := pem.Decode(data)
 	if block == nil {
-		return nil, errors.New(fmt.Sprintf("file not in PEM format: %s", filePath))
+		return nil, fmt.Errorf("file not in PEM format: %s", filePath)
 	}
 	return block, nil
 }

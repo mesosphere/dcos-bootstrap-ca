@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package cmd
 package cmd
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"encoding/pem"
 	"fmt"
 	"log"
@@ -54,7 +55,7 @@ func init() {
 }
 
 func generateCertificate(cmd *cobra.Command, args []string) {
-	pKey, _ := gen.GenerateRSAPrivateKey()
+	pKey, _ := rsa.GenerateKey(rand.Reader, 2048)
 	config := gen.MakeCertificateConfig(
 		"ROOT",
 		"US",
