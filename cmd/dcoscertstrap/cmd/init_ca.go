@@ -1,19 +1,3 @@
-/*
-Copyright © 2019 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package cmd
 
 import (
@@ -45,7 +29,7 @@ func initializeCA(cmd *cobra.Command, args []string) error {
 	}
 
 	log.Printf("Generating private key\n")
-	pKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	pKey, err := rsa.GenerateKey(rand.Reader, keyLength)
 	if err != nil {
 		return err
 	}
@@ -57,6 +41,7 @@ func initializeCA(cmd *cobra.Command, args []string) error {
 		getString(cmd, "locality"),
 		getString(cmd, "organization"),
 		getSlice(cmd, "sans"),
+		getSlice(cmd, "email-addresses"),
 		true,
 	)
 
@@ -64,9 +49,11 @@ func initializeCA(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
 	if err := gen.WritePrivateKey(gen.StorePath(keyFile), pKey); err != nil {
 		return err
 	}
+
 	if err := gen.WriteCertificate(gen.StorePath(certFile), cert); err != nil {
 		return err
 	}
@@ -76,10 +63,12 @@ func initializeCA(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddCommand(initCACmd)
-	initCACmd.Flags().StringP("common-name", "n", "ROOT", "Root certificate common name")
-	initCACmd.Flags().StringP("country", "c", "", "Country name")
-	initCACmd.Flags().StringP("state", "s", "", "State or Provence")
-	initCACmd.Flags().StringP("locality", "l", "", "Locality")
-	initCACmd.Flags().StringP("organization", "o", "", "organization")
+	initCACmd.Flags().String("common-name", "ROOT", "Root certificate common name")
+	initCACmd.Flags().String("country", "", "Country name")
+	initCACmd.Flags().String("state", "", "State or Provence")
+	initCACmd.Flags().String("locality", "", "Locality")
+	initCACmd.Flags().String("organization", "", "organization")
+	initCACmd.Flags().StringSliceP("email-addresses", "e", []string{},
+		"A list of administrative email addresses")
 	initCACmd.Flags().StringSlice("sans", []string{}, "Subject Alternative Names")
 }

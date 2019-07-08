@@ -13,19 +13,19 @@ import (
 	"time"
 )
 
-var validFor = time.Hour * 24 * 365 * 100
+const validFor = time.Hour * 24 * 365 * 100
 
 // BasicCertificateConfig DI for certificate generation
 type BasicCertificateConfig struct {
-	name  *pkix.Name  // Subject data for x509 certificates
-	isCA  bool  // true if the certificate can sign other certificates
-	hosts []string  // A list of DNS names and ip addresses
+	name           pkix.Name // Subject data for x509 certificates
+	isCA           bool      // true if the certificate can sign other certificates
+	hosts          []string  // A list of DNS names and ip addresses
+	emailAddresses []string  // administrative email address associated with the certificate
 }
 
-// MakeCertificateConfig packs a pkix.Name struct and generates a certificate configuration
-// used by the GenerateCertificate function
+// MakeCertificateConfig packs a pkix.Name struct and returns a BasicCertificateConfig structure
 func MakeCertificateConfig(name, country, state, locality, organization string,
-	hosts []string, ca bool) BasicCertificateConfig {
+	hosts, emailAddresses []string, ca bool) BasicCertificateConfig {
 
 	dn := pkix.Name{
 		CommonName:   name,
@@ -34,22 +34,29 @@ func MakeCertificateConfig(name, country, state, locality, organization string,
 		Locality:     []string{locality},
 		Organization: []string{organization},
 	}
+
 	return BasicCertificateConfig{
-		name:  &dn,
-		isCA:  ca,
-		hosts: hosts,
+		name:           dn,
+		emailAddresses: emailAddresses,
+		isCA:           ca,
+		hosts:          hosts,
 	}
 
 }
 
-// GenerateCertificate simplifies certificate generation. Certificates are output as a byte slice
+func generateSerialNumber() (*big.Int, error) {
+	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
+	return rand.Int(rand.Reader, serialNumberLimit)
+}
+
+// GenerateCertificate simplifies certificate generation. Certificates are returned as a byte slice.
 func GenerateCertificate(
 	config BasicCertificateConfig, issuer *x509.Certificate, key *rsa.PrivateKey) ([]byte, error) {
-	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
-	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
+	var pubKey *rsa.PublicKey
 
+	serialNumber, err := generateSerialNumber()
 	if err != nil {
-		log.Fatalf("failed to generate serial number: %s", err)
+		log.Printf("failed to generate serial number: %s", err)
 		return nil, err
 	}
 
@@ -57,10 +64,11 @@ func GenerateCertificate(
 	notAfter := notBefore.Add(validFor)
 
 	template := x509.Certificate{
-		SerialNumber: serialNumber,
-		Subject:      *config.name,
+		SerialNumber:   serialNumber,
+		Subject:        config.name,
+		EmailAddresses: config.emailAddresses,
 
-		NotBefore: time.Now(),
+		NotBefore: notBefore,
 		NotAfter:  notAfter,
 
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
@@ -85,8 +93,47 @@ func GenerateCertificate(
 	// Self-signed
 	if issuer == nil {
 		issuer = &template
+		pubKey = key.Public().(*rsa.PublicKey)
+	} else {
+		pubKey = issuer.PublicKey.(*rsa.PublicKey)
 	}
 
 	log.Printf("Generating certificate - SN: %x", template.SerialNumber)
-	return x509.CreateCertificate(rand.Reader, issuer, &template, &key.PublicKey, key)
+	return x509.CreateCertificate(rand.Reader, &template, issuer, pubKey, key)
+}
+
+// Sign issues and signs a certificate per the csr provided.
+func Sign(csr x509.CertificateRequest, issuer x509.Certificate, signingKey rsa.PrivateKey) ([]byte, error) {
+	if err := csr.CheckSignature(); err != nil {
+		log.Printf("CSR signature is not valid: %v", err)
+		return nil, err
+	}
+
+	serialNumber, err := generateSerialNumber()
+
+	if err != nil {
+		log.Printf("failed to generate serial number: %s", err)
+		return nil, err
+	}
+
+	notBefore := time.Now()
+	notAfter := notBefore.Add(validFor)
+
+	template := x509.Certificate{
+		SerialNumber:   serialNumber,
+		Subject:        csr.Subject,
+		EmailAddresses: csr.EmailAddresses,
+
+		NotBefore: notBefore,
+		NotAfter:  notAfter,
+
+		BasicConstraintsValid: true,
+
+		IPAddresses: csr.IPAddresses,
+		DNSNames:    csr.DNSNames,
+	}
+
+	log.Printf("Generating certificate - SN: %x", template.SerialNumber)
+
+	return x509.CreateCertificate(rand.Reader, &template, &issuer, csr.PublicKey, &signingKey)
 }

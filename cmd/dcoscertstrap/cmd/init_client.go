@@ -1,59 +1,45 @@
-/*
-Copyright © 2019 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package cmd
 
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-	"fmt"
+	"github.com/jr0d/dcoscertstrap/pkg/gen"
 	"github.com/spf13/cobra"
-	"os"
+	"log"
 )
 
 // initClientCmd represents the initClient command
 var initClientCmd = &cobra.Command{
 	Use:   "init-client",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		pKey, _ := rsa.GenerateKey(rand.Reader, 2048)
-		marshalKey := x509.MarshalPKCS1PrivateKey(pKey)
-		_ = pem.Encode(os.Stdout, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: marshalKey})
-		fmt.Println("")
-	},
+	Short: "Initializes a client private key",
+	RunE:  initializeClient,
 }
 
 func init() {
 	rootCmd.AddCommand(initClientCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+func initializeClient(cmd *cobra.Command, args []string) error {
+	var keyFile = "client-key.pem"
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initClientCmd.PersistentFlags().String("foo", "", "A help for foo")
+	d, err := cmd.Flags().GetString("output-dir")
+	if err != nil {
+		return err
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initClientCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	log.Printf("Initializing new client key at %s\n", d)
+	if err := gen.InitStorage(d); err != nil {
+		return err
+	}
+
+	pKey, err := rsa.GenerateKey(rand.Reader, keyLength)
+	if err != nil {
+		return err
+	}
+
+	if err := gen.WritePrivateKey(gen.StorePath(keyFile), pKey); err != nil {
+		return err
+	}
+
+	return nil
 }
