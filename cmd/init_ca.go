@@ -16,9 +16,6 @@ var initCACmd = &cobra.Command{
 }
 
 func initializeCA(cmd *cobra.Command, args []string) error {
-	var keyFile = "root-key.pem"
-	var certFile = "root-ca.pem"
-
 	d, err := cmd.Flags().GetString("output-dir")
 	if err != nil {
 		return err
@@ -50,11 +47,11 @@ func initializeCA(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := gen.WritePrivateKey(gen.StorePath(keyFile), pKey); err != nil {
+	if err := gen.WritePrivateKey(gen.StorePath(gen.RootKeyFile), pKey); err != nil {
 		return err
 	}
 
-	if err := gen.WriteCertificate(gen.StorePath(certFile), cert); err != nil {
+	if err := gen.WriteCertificate(gen.StorePath(gen.RootCAFile), cert); err != nil {
 		return err
 	}
 
@@ -64,11 +61,11 @@ func initializeCA(cmd *cobra.Command, args []string) error {
 func init() {
 	rootCmd.AddCommand(initCACmd)
 	initCACmd.Flags().String("common-name", "ROOT", "Root certificate common name")
-	initCACmd.Flags().String("country", "", "Country name")
-	initCACmd.Flags().String("state", "", "State or Provence")
-	initCACmd.Flags().String("locality", "", "Locality")
-	initCACmd.Flags().String("organization", "", "organization")
-	initCACmd.Flags().StringSliceP("email-addresses", "e", []string{},
+	initCACmd.Flags().String("country", "US", "Country name")
+	initCACmd.Flags().String("state", "CA", "State or Provence")
+	initCACmd.Flags().String("locality", "San Francisco", "Locality")
+	initCACmd.Flags().String("organization", "Mesosphere Inc.", "organization")
+	initCACmd.Flags().StringSlice("email-addresses", []string{"security@mesosphere.com"},
 		"A list of administrative email addresses")
 	initCACmd.Flags().StringSlice("sans", []string{}, "Subject Alternative Names")
 }

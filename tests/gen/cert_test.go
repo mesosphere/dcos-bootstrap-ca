@@ -119,7 +119,7 @@ oWqnlJdCFaFu6n1nbtO9GKgKOe/qPCNn/rVqgzDn8KFj4tRUxUYdLyXRLkSx9Ck=
 		t.Fatalf("error parsing csr: %v", err)
 	}
 
-	signed, err := gen.Sign(*csr, *caCert, *rootKey)
+	signed, err := gen.Sign(csr, caCert, rootKey)
 	if err != nil {
 		t.Fatalf("error granting CSR: %v", err)
 	}

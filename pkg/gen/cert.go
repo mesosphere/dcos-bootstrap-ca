@@ -103,7 +103,7 @@ func GenerateCertificate(
 }
 
 // Sign issues and signs a certificate per the csr provided.
-func Sign(csr x509.CertificateRequest, issuer x509.Certificate, signingKey rsa.PrivateKey) ([]byte, error) {
+func Sign(csr *x509.CertificateRequest, issuer *x509.Certificate, signingKey *rsa.PrivateKey) ([]byte, error) {
 	if err := csr.CheckSignature(); err != nil {
 		log.Printf("CSR signature is not valid: %v", err)
 		return nil, err
@@ -135,5 +135,5 @@ func Sign(csr x509.CertificateRequest, issuer x509.Certificate, signingKey rsa.P
 
 	log.Printf("Generating certificate - SN: %x", template.SerialNumber)
 
-	return x509.CreateCertificate(rand.Reader, &template, &issuer, csr.PublicKey, &signingKey)
+	return x509.CreateCertificate(rand.Reader, &template, issuer, csr.PublicKey, signingKey)
 }

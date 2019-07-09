@@ -10,9 +10,10 @@ import (
 
 // initClientCmd represents the initClient command
 var initClientCmd = &cobra.Command{
-	Use:   "init-client",
-	Short: "Initializes a client private key",
+	Use:   "init-entity",
+	Short: "Initializes an end entity private key",
 	RunE:  initializeClient,
+	Args:  cobra.MinimumNArgs(1),
 }
 
 func init() {
@@ -20,24 +21,26 @@ func init() {
 }
 
 func initializeClient(cmd *cobra.Command, args []string) error {
-	var keyFile = "client-key.pem"
-
 	d, err := cmd.Flags().GetString("output-dir")
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Initializing new client key at %s\n", d)
+	entity := args[0]
+	entityFile := entity + "-key.pem"
+
 	if err := gen.InitStorage(d); err != nil {
 		return err
 	}
+
+	log.Printf("Initializing new entity key at %s\n", gen.StorePath(entityFile))
 
 	pKey, err := rsa.GenerateKey(rand.Reader, keyLength)
 	if err != nil {
 		return err
 	}
 
-	if err := gen.WritePrivateKey(gen.StorePath(keyFile), pKey); err != nil {
+	if err := gen.WritePrivateKey(gen.StorePath(entityFile), pKey); err != nil {
 		return err
 	}
 
