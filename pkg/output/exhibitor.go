@@ -115,11 +115,10 @@ func copyFile(src, destDir string, mode os.FileMode) error {
 	defer d.Close()
 
 	log.Printf("Copying %s to %s", src, destPath)
+
 	_, err = io.Copy(d, s)
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return err
 }
 
 func copyEntities(destDir, serverEntity, clientEntity string) error {
@@ -150,19 +149,21 @@ func WriteArtifacts(path, caPath, serverEntity, clientEntity, password string) e
 
 	err = writeTrustStore(caPath, path, password)
 	if err != nil {
-
-		return err
+		return fmt.Errorf("error writing truststore : %v", err)
 	}
 
 	err = writeServerStore(serverEntity, path, password)
 	if err != nil {
-		return err
+		return fmt.Errorf("error writing serverstore : %v", err)
 	}
 
 	err = writeClientStore(clientEntity, path, password)
 	if err != nil {
-		return err
+		return fmt.Errorf("error writing clientstore : %v", err)
 	}
 
-	return copyEntities(path, serverEntity, clientEntity)
+	if err = copyEntities(path, serverEntity, clientEntity); err != nil {
+		return fmt.Errorf("error copying entities : %v", err)
+	}
+	return nil
 }
