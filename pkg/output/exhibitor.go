@@ -5,7 +5,9 @@ import (
 	"github.com/jr0d/dcoscertstrap/pkg/gen"
 	"github.com/pavel-v-chernykh/keystore-go"
 	"github.com/spf13/afero"
+	"io"
 	"log"
+	"os"
 	"path"
 	"time"
 )
@@ -96,6 +98,49 @@ func writeClientStore(entity, outputDir, password string) error {
 	return writeEntityStore("client", entity, ksPath, password)
 }
 
+func copyFile(src, destDir string, mode os.FileMode) error {
+	destPath := path.Join(destDir, path.Base(src))
+
+	s, err := AppFs.Open(src)
+	if err != nil {
+		return err
+	}
+
+	defer s.Close()
+
+	d, err := AppFs.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, mode)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+
+	log.Printf("Copying %s to %s", src, destPath)
+	_, err = io.Copy(d, s)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func copyEntities(destDir, serverEntity, clientEntity string) error {
+	serverKey, serverCert := entityPaths(serverEntity)
+	clientKey, clientCert := entityPaths(clientEntity)
+
+	err := copyFile(serverKey, destDir, 0600)
+	if err != nil {
+		return err
+	}
+	err = copyFile(clientKey, destDir, 0600)
+	if err != nil {
+		return err
+	}
+	err = copyFile(serverCert, destDir, 0644)
+	if err != nil {
+		return err
+	}
+	return copyFile(clientCert, destDir, 0644)
+}
+
 // WriteArtifacts creates exhibitor TLS artifacts for DC/OS
 func WriteArtifacts(path, caPath, serverEntity, clientEntity, password string) error {
 	err := AppFs.MkdirAll(path, 0700)
@@ -119,6 +164,5 @@ func WriteArtifacts(path, caPath, serverEntity, clientEntity, password string) e
 		return err
 	}
 
-	return nil
-
+	return copyEntities(path, serverEntity, clientEntity)
 }
