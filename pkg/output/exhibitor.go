@@ -30,7 +30,7 @@ func writeKeyStore(ks keystore.KeyStore, path, password string) error {
 	return nil
 }
 
-func writeCATrustStore(caPath, outputDir, password string) error {
+func writeTrustStore(caPath, outputDir, password string) error {
 	const filename = "truststore.jks"
 	outputPath := path.Join(outputDir, filename)
 	ks := keystore.KeyStore{}
@@ -148,7 +148,7 @@ func WriteArtifacts(path, caPath, serverEntity, clientEntity, password string) e
 		return fmt.Errorf("error creating %s : %v", path, err)
 	}
 
-	err = writeCATrustStore(caPath, path, password)
+	err = writeTrustStore(caPath, path, password)
 	if err != nil {
 
 		return err

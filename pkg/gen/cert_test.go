@@ -9,11 +9,9 @@ import (
 	"testing"
 )
 
-import "github.com/jr0d/dcoscertstrap/pkg/gen"
-
 func TestCertificateGeneration(t *testing.T) {
 	pKey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	config := gen.MakeCertificateConfig(
+	config := MakeCertificateConfig(
 		"ROOT",
 		"US",
 		"TX",
@@ -24,7 +22,7 @@ func TestCertificateGeneration(t *testing.T) {
 		true)
 
 	fmt.Printf("%x", pKey)
-	rootCert, err := gen.GenerateCertificate(config, nil, pKey)
+	rootCert, err := GenerateCertificate(config, nil, pKey)
 	if err != nil {
 		t.Fatalf("certificate generation failed: %v", err)
 	}
@@ -100,7 +98,7 @@ oWqnlJdCFaFu6n1nbtO9GKgKOe/qPCNn/rVqgzDn8KFj4tRUxUYdLyXRLkSx9Ck=
 	caCert, _ := x509.ParseCertificate(block.Bytes)
 	clientKey, _ := rsa.GenerateKey(rand.Reader, 2048)
 
-	config := gen.MakeCSRConfig(
+	config := MakeCSRConfig(
 		"test",
 		"US",
 		"TX",
@@ -110,7 +108,7 @@ oWqnlJdCFaFu6n1nbtO9GKgKOe/qPCNn/rVqgzDn8KFj4tRUxUYdLyXRLkSx9Ck=
 		[]string{"security@mesosphere.com"},
 	)
 
-	csrBytes, err := gen.GenerateCSR(config, clientKey)
+	csrBytes, err := GenerateCSR(config, clientKey)
 	if err != nil {
 		t.Fatalf("error generating csr: %v", err)
 	}
@@ -119,7 +117,7 @@ oWqnlJdCFaFu6n1nbtO9GKgKOe/qPCNn/rVqgzDn8KFj4tRUxUYdLyXRLkSx9Ck=
 		t.Fatalf("error parsing csr: %v", err)
 	}
 
-	signed, err := gen.Sign(csr, caCert, rootKey)
+	signed, err := Sign(csr, caCert, rootKey)
 	if err != nil {
 		t.Fatalf("error granting CSR: %v", err)
 	}

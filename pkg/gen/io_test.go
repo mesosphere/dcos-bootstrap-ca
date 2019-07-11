@@ -3,7 +3,6 @@ package gen
 import (
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/jr0d/dcoscertstrap/pkg/gen"
 	"github.com/spf13/afero"
 	"os"
 	"testing"
@@ -12,13 +11,13 @@ import (
 const testStorePath = "/test/.pki"
 
 func TestInitStorage(t *testing.T) {
-	gen.AppFs = afero.NewMemMapFs()
-	err := gen.InitStorage(testStorePath)
+	AppFs = afero.NewMemMapFs()
+	err := InitStorage(testStorePath)
 	if err != nil {
 		t.Fatalf("error creating storage directory: %v", err)
 	}
 
-	fileInfo, err := gen.AppFs.Stat(testStorePath)
+	fileInfo, err := AppFs.Stat(testStorePath)
 	if err != nil {
 		t.Fatalf("could not stat %s: %v", testStorePath, err)
 	}
@@ -58,17 +57,17 @@ S4bBnwKBgClpuz0qoO2QSR3UhUb+JeVclYDbUMsfTsVrA6PM4pSRry5ROJLd7a0r
 PzIDeK7yKWGcklqhG17IVS5VUotwFyYWJP+mhkM92cG8YQaKAnJwSzwa3KPUoZSM
 fK2XHqIW9vWiBCBpTU96wTjellzmn3K+D46CBOwwoL+OBRC3I2ZC
 -----END RSA PRIVATE KEY-----`)
-	gen.AppFs = afero.NewMemMapFs()
-	_ = gen.InitStorage(testStorePath)
-	p := gen.StorePath("private.key")
+	AppFs = afero.NewMemMapFs()
+	_ = InitStorage(testStorePath)
+	p := StorePath("private.key")
 	tmp, _ := pem.Decode(key)
 	pKey, _ := x509.ParsePKCS1PrivateKey(tmp.Bytes)
-	e := gen.WritePrivateKey(p, pKey)
+	e := WritePrivateKey(p, pKey)
 	if e != nil {
 		t.Fatalf("failed to write private key: %v", e)
 	}
 
-	fileInfo, err := gen.AppFs.Stat(p)
+	fileInfo, err := AppFs.Stat(p)
 	if err != nil {
 		t.Fatalf("could not stat %s: %v", p, e)
 	}
@@ -79,7 +78,7 @@ fK2XHqIW9vWiBCBpTU96wTjellzmn3K+D46CBOwwoL+OBRC3I2ZC
 		t.Fatalf("private key file does not have the correct permissions: %s", mode.Perm())
 	}
 
-	resultKey, err := gen.ReadPrivateKey(p)
+	resultKey, err := ReadPrivateKey(p)
 
 	if err != nil {
 		t.Fatalf("error parsing private key")
@@ -119,16 +118,16 @@ t5ffjQkLvSjaPUuf5PxLAatgAR+WbRDq+suuHmHTlOYftRWCvmuBvyaNieGExbjw
 TxYx+J5Z
 -----END CERTIFICATE-----
 `)
-	gen.AppFs = afero.NewMemMapFs()
-	_ = gen.InitStorage(testStorePath)
-	p := gen.StorePath("test-cert.pem")
+	AppFs = afero.NewMemMapFs()
+	_ = InitStorage(testStorePath)
+	p := StorePath("test-cert.pem")
 	block, _ := pem.Decode(cert)
 	testCert, _ := x509.ParseCertificate(block.Bytes)
-	if err := gen.WriteCertificate(p, block.Bytes); err != nil {
+	if err := WriteCertificate(p, block.Bytes); err != nil {
 		t.Fatalf("error writing certificate: %v", err)
 	}
 
-	bytes, err := gen.ReadCertificatePEM(p)
+	bytes, err := ReadCertificatePEM(p)
 	if err != nil {
 		t.Fatalf("error reading file: %v", err)
 	}

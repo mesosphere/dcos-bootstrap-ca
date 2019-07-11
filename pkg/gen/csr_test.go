@@ -4,13 +4,12 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"github.com/jr0d/dcoscertstrap/pkg/gen"
 	"testing"
 )
 
 func TestCSRGeneration(t *testing.T) {
 	pKey, _ := rsa.GenerateKey(rand.Reader, 2048)
-	config := gen.MakeCSRConfig(
+	config := MakeCSRConfig(
 		"client",
 		"US",
 		"TX",
@@ -20,7 +19,7 @@ func TestCSRGeneration(t *testing.T) {
 		[]string{"security@mesosphere.com"},
 	)
 
-	csrBytes, err := gen.GenerateCSR(config, pKey)
+	csrBytes, err := GenerateCSR(config, pKey)
 	if err != nil {
 		t.Fatalf("csr generation failed: %v", err)
 	}
