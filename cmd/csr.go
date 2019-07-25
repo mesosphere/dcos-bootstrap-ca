@@ -89,7 +89,12 @@ func csrSign(cmd *cobra.Command, args []string) error {
 		log.Fatalf("error parsing json : %v", err)
 	}
 
-	err = gen.WriteCertificate(gen.StorePath(entityCertFile), []byte(respJSON.Certificate))
+	f, err := gen.AppFs.Create(gen.StorePath(entityCertFile))
+	if err != nil {
+		log.Fatalf("error creating file : %v", err)
+	}
+	_, err = f.Write([]byte(respJSON.Certificate))
+
 	if err != nil {
 		log.Fatalf("could not write signed certficate : %v", err)
 	}

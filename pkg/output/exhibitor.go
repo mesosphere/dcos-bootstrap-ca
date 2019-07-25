@@ -1,6 +1,7 @@
 package output
 
 import (
+	"crypto/x509"
 	"fmt"
 	"github.com/jr0d/dcoscertstrap/pkg/gen"
 	"github.com/pavel-v-chernykh/keystore-go"
@@ -60,9 +61,15 @@ func entityPaths(entity string) (string, string) {
 func writeEntityStore(alias, entity, ksPath, password string) error {
 	ks := keystore.KeyStore{}
 	keyPem, certPem := entityPaths(entity)
-	key, err := gen.ReadPrivateKeyBytes(keyPem)
+	pkcs1Key, err := gen.ReadPrivateKey(keyPem)
 	if err != nil {
 		return fmt.Errorf("error reading %s : %v", keyPem, err)
+	}
+
+	// Convert private key to PKCS #8
+	key, err := x509.MarshalPKCS8PrivateKey(pkcs1Key)
+	if err != nil {
+		return fmt.Errorf("error marshelling PKCS private key : %v", err)
 	}
 
 	cert, err := gen.ReadCertificatePEM(certPem)
@@ -122,19 +129,9 @@ func copyFile(src, destDir string, mode os.FileMode) error {
 	return nil
 }
 
-func copyEntities(destDir, serverEntity, clientEntity string) error {
-	serverKey, serverCert := entityPaths(serverEntity)
+func copyEntities(destDir, clientEntity string) error {
 	clientKey, clientCert := entityPaths(clientEntity)
-
-	err := copyFile(serverKey, destDir, 0600)
-	if err != nil {
-		return err
-	}
-	err = copyFile(clientKey, destDir, 0600)
-	if err != nil {
-		return err
-	}
-	err = copyFile(serverCert, destDir, 0644)
+	err := copyFile(clientKey, destDir, 0600)
 	if err != nil {
 		return err
 	}
@@ -143,7 +140,7 @@ func copyEntities(destDir, serverEntity, clientEntity string) error {
 
 // WriteArtifacts creates exhibitor TLS artifacts for DC/OS
 func WriteArtifacts(path, caPath, serverEntity, clientEntity, password string) error {
-	err := AppFs.MkdirAll(path, 0700)
+	err := AppFs.MkdirAll(path, 0755)
 	if err != nil {
 		return fmt.Errorf("error creating %s : %v", path, err)
 	}
@@ -164,5 +161,11 @@ func WriteArtifacts(path, caPath, serverEntity, clientEntity, password string) e
 		return err
 	}
 
-	return copyEntities(path, serverEntity, clientEntity)
+	err = copyEntities(path, clientEntity)
+	if err != nil {
+		return err
+	}
+
+	// Finally copy the CA certificate
+	return copyFile(caPath, path, 0644)
 }

@@ -85,7 +85,7 @@ func ReadPrivateKeyBytes(filePath string) ([]byte, error) {
 		return nil, err
 	}
 	if block.Type != "RSA PRIVATE KEY" {
-		return nil, errors.New("PEM is not a private key")
+		return nil, errors.New("PEM is not an RSA private key")
 	}
 	return block.Bytes, nil
 }
