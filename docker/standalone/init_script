@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+CMD=/usr/bin/dcos-bootstrap-ca-standalone
+OUTPUT_DIR="/ca"
+
+SERVE_ADDRESS=${1:-":8443"}
+PSK=${2:-""}
+
+SANS="$(ip addr show eth0 | grep inet | awk '{print $2}' | awk -F '/' '{print $1}'),127.0.0.1,localhost"
+
+${CMD} -d "${OUTPUT_DIR}" init-ca --sans "${SANS}"
+${CMD} -d "${OUTPUT_DIR}" serve --address "${SERVE_ADDRESS}" --psk "${PSK}"
