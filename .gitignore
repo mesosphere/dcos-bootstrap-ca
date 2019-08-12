@@ -2,4 +2,5 @@
 bin/
 go.sum
 dist/
+docker/standalone/dcos-bootstrap-ca
 
