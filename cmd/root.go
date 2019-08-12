@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 const version = "0.1"
@@ -12,7 +13,7 @@ const versionFmt = "v" + version
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use: "dcoscertstrap",
+	Use: "dcos-bootstrap-ca",
 	Short: "Simple program used to bootstrap TLS artifacts for " +
 		"secure inter-cluster communications",
 	Long: `This program is part of DC/OS and not intended for use

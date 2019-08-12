@@ -1,12 +1,12 @@
-PROJECT_NAME := "dcoscertstrap"
-PKG := "github.com/jr0d/$(PROJECT_NAME)"
+PROJECT_NAME := dcos-bootstrap-ca
+PKG := github.com/mesosphere/$(PROJECT_NAME)
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 
 .PHONY: all fmt build clean lint
 
 build: fmt test lint
-	@go build -o bin/dcoscertstrap
+	@go build -o bin/$(PROJECT_NAME)
 
 test:
 	@go test ./...
