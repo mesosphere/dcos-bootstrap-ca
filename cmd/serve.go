@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/jr0d/dcoscertstrap/pkg/gen"
-	"github.com/jr0d/dcoscertstrap/pkg/server"
+	"github.com/mesosphere/dcos-bootstrap-ca/pkg/gen"
+	"github.com/mesosphere/dcos-bootstrap-ca/pkg/server"
 	"github.com/spf13/cobra"
 )
 

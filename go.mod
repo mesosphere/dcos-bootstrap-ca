@@ -1,4 +1,4 @@
-module github.com/jr0d/dcoscertstrap
+module github.com/mesosphere/dcos-bootstrap-ca
 
 go 1.12
 

@@ -3,7 +3,7 @@ package cmd
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"github.com/jr0d/dcoscertstrap/pkg/gen"
+	"github.com/mesosphere/dcos-bootstrap-ca/pkg/gen"
 	"github.com/spf13/cobra"
 	"log"
 )

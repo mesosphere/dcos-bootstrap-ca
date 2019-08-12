@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"github.com/jr0d/dcoscertstrap/pkg/gen"
+	"github.com/mesosphere/dcos-bootstrap-ca/pkg/gen"
 	"log"
 	"net/http"
 	"time"

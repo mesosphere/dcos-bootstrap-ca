@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jr0d/dcoscertstrap/cmd"
+	"github.com/mesosphere/dcos-bootstrap-ca/cmd"
 )
 
 func main() {

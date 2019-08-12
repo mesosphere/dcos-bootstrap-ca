@@ -3,7 +3,7 @@ package output
 import (
 	"crypto/x509"
 	"fmt"
-	"github.com/jr0d/dcoscertstrap/pkg/gen"
+	"github.com/mesosphere/dcos-bootstrap-ca/pkg/gen"
 	"github.com/pavel-v-chernykh/keystore-go"
 	"github.com/spf13/afero"
 	"io"
