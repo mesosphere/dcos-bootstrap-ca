@@ -36,10 +36,10 @@ func outputExhibitorArtifacts(cmd *cobra.Command, args []string) {
 func init() {
 	rootCmd.AddCommand(outputExhibitorCmd)
 	outputExhibitorCmd.Flags().String("ca", "", "Root CA needed for truststore")
-	_ = rootCmd.MarkFlagRequired("ca")
+	_ = outputExhibitorCmd.MarkFlagRequired("ca")
 	outputExhibitorCmd.Flags().String("server-entity", "server", "Server entity name")
 	outputExhibitorCmd.Flags().String("client-entity", "client", "Client entity name")
 	outputExhibitorCmd.Flags().String(
 		"artifacts-directory", "/var/lib/dcos/exhibitor-tls-artifacts",
-		"Output director for artifacts")
+		"Output directory for artifacts")
 }
