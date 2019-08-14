@@ -45,7 +45,7 @@ func RunServer(address, psk string) {
 	// handlers
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", index)
-	mux.HandleFunc("/sign", Sign)
+	mux.HandleFunc("/csr/v1/sign", Sign)
 
 	srv := &http.Server{
 		ReadTimeout:  5 * time.Second,
@@ -110,13 +110,13 @@ func index(w http.ResponseWriter, req *http.Request) {
 	logRequest(req, http.StatusOK, n)
 }
 
-// SignRequest represents the JSON payload for the /sign endpoint
+// SignRequest represents the JSON payload for the /csr/v1/sign endpoint
 type SignRequest struct {
 	Psk string `json:"psk"`
 	Csr string `json:"csr"`
 }
 
-//SignResponse represents the JSON response for the /sign endpoint
+//SignResponse represents the JSON response for the /csr/v1/sign endpoint
 type SignResponse struct {
 	Certificate string `json:"certificate"`
 }

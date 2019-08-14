@@ -37,7 +37,7 @@ func csrSign(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		log.Fatalf("error parsing url : %v", err)
 	}
-	u.Path = path.Join(u.Path, "sign")
+	u.Path = path.Join(u.Path, "csr", "v1", "sign")
 
 	psk := getString(cmd, "psk")
 	caFile := getString(cmd, "ca")
